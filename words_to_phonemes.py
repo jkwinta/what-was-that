@@ -1,9 +1,13 @@
 from get_phoneme_dictionary import get_phoneme_dictionary
 
+WORD_TO_PHONEME_DICT = None
+
 
 def words_to_phonemes(words):
-    word_to_phoneme_dict = get_phoneme_dictionary()
+    global WORD_TO_PHONEME_DICT
+    if WORD_TO_PHONEME_DICT is None:
+        WORD_TO_PHONEME_DICT = get_phoneme_dictionary()
     result = []
     for word in words.split():
-        result.extend(word_to_phoneme_dict.get(word.upper(), [-1]))
+        result.extend(WORD_TO_PHONEME_DICT.get(word.upper(), [-1]))
     return result
