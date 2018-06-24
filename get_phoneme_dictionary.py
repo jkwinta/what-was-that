@@ -4,6 +4,9 @@ import os
 DICTIONARY_FILE = 'cmudict-0.7b'
 DICTIONARY_URL = 'http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b'
 
+PUNCTUATION_EXCEPTIONS = ('3D', "'TIL", "'TIS", "'TWAS", "'ROUND", "'S", "'KAY", "'M", "'N", "'FRISCO", "'GAIN",
+                          "'BOUT", "'CAUSE", "'COURSE", "'CUSE", "'EM", "'ALLO")
+
 
 def get_phoneme_dictionary():
     if not os.path.isfile('./' + DICTIONARY_FILE):
@@ -13,7 +16,7 @@ def get_phoneme_dictionary():
         write_dict = ''
         while write_dict.lower() not in ('y', 'n'):
             write_dict = input("Write phoneme dictionary to file for future you? [y/n] ").strip()
-        if write_dict == 'y':
+        if write_dict.lower() == 'y':
             with open('./' + DICTIONARY_FILE, 'w') as f:
                 f.write(phoneme_dict_str)
     else:
@@ -23,5 +26,12 @@ def get_phoneme_dictionary():
     for line in phoneme_dict_str.split('\n'):
         if line and not line.startswith(';;;'):
             line = line.split()
-            word_to_phoneme[line[0]] = tuple(''.join([c for c in ph if not c.isdigit()]) for ph in line[1:])
+            word = line[0]
+            # remove numbers indicating stress
+            phonemes = tuple(''.join([c for c in ph if not c.isdigit()]) for ph in line[1:])
+            if '(' in word and ')' in word:
+                # TODO: alternate pronounciations
+                pass
+            else:
+                word_to_phoneme[word] = phonemes
     return word_to_phoneme
