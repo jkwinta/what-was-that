@@ -7,7 +7,7 @@ class Instance:
         # self.words = instance.split()
         self.words = None
         self.phonemes = None
-        self.next = None
+        # self.next = None
         self.array = None
         self.solution = None
 

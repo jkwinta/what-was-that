@@ -29,7 +29,10 @@ def get_phoneme_dictionary():
             word = line[0]
             # remove numbers indicating stress
             phonemes = tuple(''.join([c for c in ph if not c.isdigit()]) for ph in line[1:])
-            if '(' in word and ')' in word:
+            if not word[0].isalpha() and word != '3D':
+                # TODO: specific allowed bits, associated with advanced word splitting?
+                pass
+            elif word[-1] == ')' and word[-3] == '(':
                 # TODO: alternate pronounciations
                 pass
             else:
