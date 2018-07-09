@@ -7,6 +7,9 @@ DICTIONARY_URL = 'http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-
 PUNCTUATION_EXCEPTIONS = ('3D', "'TIL", "'TIS", "'TWAS", "'ROUND", "'S", "'KAY", "'M", "'N", "'FRISCO", "'GAIN",
                           "'BOUT", "'CAUSE", "'COURSE", "'CUSE", "'EM", "'ALLO")
 
+WORD_TO_PHONEME_DICTIONARY = None
+PHONEME_TO_WORD_DICTIONARY = None
+
 
 def get_phoneme_dictionary():
     if not os.path.isfile('./' + DICTIONARY_FILE):
