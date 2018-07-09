@@ -22,7 +22,7 @@ def get_phoneme_dictionary():
     else:
         with open('./' + DICTIONARY_FILE) as f:
             phoneme_dict_str = f.read()
-    word_to_phoneme = {}
+    word_to_phonemes = {}
     for line in phoneme_dict_str.split('\n'):
         if line and not line.startswith(';;;'):
             line = line.split()
@@ -36,5 +36,5 @@ def get_phoneme_dictionary():
                 # TODO: alternate pronounciations
                 pass
             else:
-                word_to_phoneme[word] = phonemes
-    return word_to_phoneme
+                word_to_phonemes[word] = phonemes
+    return word_to_phonemes
