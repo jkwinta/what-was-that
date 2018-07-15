@@ -40,7 +40,7 @@ def build_word_to_phonemes_dict():
                 # TODO: alternate pronunciations
                 pass
             else:
-                WORD_TO_PHONEMES_DICT[word] = phonemes
+                WORD_TO_PHONEMES_DICT[word.lower()] = phonemes
 
 
 def build_phonemes_to_word_dict():
