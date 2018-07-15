@@ -1,4 +1,4 @@
-from get_phoneme_dictionary import get_phoneme_dictionary
+from phoneme_dictionaries import get_phoneme_dictionary
 
 words_to_phoneme = get_phoneme_dictionary()
 
