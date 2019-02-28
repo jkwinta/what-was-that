@@ -1,5 +1,6 @@
 from urllib import request
 import os
+import sys
 
 DICTIONARY_FILE = 'cmudict-0.7b'
 DICTIONARY_URL = 'http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b'
@@ -27,6 +28,7 @@ def build_word_to_phonemes_dict():
             phoneme_dict_str = f.read()
     global WORD_TO_PHONEMES_DICT
     WORD_TO_PHONEMES_DICT = {}
+    skipped = []
     for line in phoneme_dict_str.split('\n'):
         if line and not line.startswith(';;;'):
             line = line.split()
@@ -35,23 +37,26 @@ def build_word_to_phonemes_dict():
             phonemes = tuple(''.join([c for c in ph if not c.isdigit()]) for ph in line[1:])
             if not word[0].isalpha() and word != '3D':
                 # TODO: specific allowed bits, associated with advanced word splitting?
-                pass
+                print('Skipping word "{}"'.format(word), file=sys.stderr)
+                skipped.append((word, phonemes))
             elif word[-1] == ')' and word[-3] == '(':
-                # TODO: alternate pronunciations
-                pass
+                # Check -1 first in case length is < 3
+                WORD_TO_PHONEMES_DICT[word[:-3]].append(phonemes)
             else:
-                WORD_TO_PHONEMES_DICT[word.lower()] = phonemes
+                WORD_TO_PHONEMES_DICT[word] = [phonemes]
+    return
 
 
 def build_phonemes_to_word_dict():
     word_to_phonemes = get_word_to_phonemes_dict()
     global PHONEMES_TO_WORD_DICT
     PHONEMES_TO_WORD_DICT = {}
-    for word, phonemes in word_to_phonemes.items():
-        if phonemes not in PHONEMES_TO_WORD_DICT:
-            PHONEMES_TO_WORD_DICT[phonemes] = [word]
-        else:
-            PHONEMES_TO_WORD_DICT[phonemes].append(word)
+    for word, phonemes_list in word_to_phonemes.items():
+        for phonemes in phonemes_list:
+            if phonemes not in PHONEMES_TO_WORD_DICT:
+                PHONEMES_TO_WORD_DICT[phonemes] = [word]
+            else:
+                PHONEMES_TO_WORD_DICT[phonemes].append(word)
 
 
 def get_word_to_phonemes_dict():
@@ -64,3 +69,9 @@ def get_phonemes_to_word_dict():
     if PHONEMES_TO_WORD_DICT is None:
         build_phonemes_to_word_dict()
     return PHONEMES_TO_WORD_DICT
+
+
+if __name__ == '__main__':
+    w2ph = get_word_to_phonemes_dict()
+    ph2w = get_phonemes_to_word_dict()
+    print(end='')
