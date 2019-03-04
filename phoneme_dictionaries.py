@@ -3,10 +3,13 @@ import os
 import sys
 
 DICTIONARY_FILE = 'cmudict-0.7b'
-DICTIONARY_URL = 'http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b'
+DICTIONARY_URL = ('http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/' +
+                  'cmudict-0.7b')
 
-PUNCTUATION_EXCEPTIONS = ('3D', "'TIL", "'TIS", "'TWAS", "'ROUND", "'S", "'KAY", "'M", "'N", "'FRISCO", "'GAIN",
-                          "'BOUT", "'CAUSE", "'COURSE", "'CUSE", "'EM", "'ALLO")
+# Words that start with non-letters are punctuation descriptions except for:
+PUNCTUATION_EXCEPTIONS = ("'ALLO", "'BOUT", "'CAUSE", "'COURSE", "'CUSE", "'EM",
+                          "'FRISCO", "'GAIN", "'KAY", "'M", "'N", "'ROUND",
+                          "'S", "'TIL", "'TIS", "'TWAS", '3-D', '3D')
 
 WORD_TO_PHONEMES_DICT = None
 PHONEMES_TO_WORD_DICT = None
@@ -31,12 +34,12 @@ def build_word_to_phonemes_dict():
     skipped = []
     for line in phoneme_dict_str.split('\n'):
         if line and not line.startswith(';;;'):
-            line = line.split()
-            word = line[0]
+            # TODO:  'TIME0-OUT' typo
+            word, phonemes_str = line.split('  ')  # Double space
             # remove numbers indicating stress
-            phonemes = tuple(''.join([c for c in ph if not c.isdigit()]) for ph in line[1:])
-            if not word[0].isalpha() and word != '3D':
-                # TODO: specific allowed bits, associated with advanced word splitting?
+            phonemes = tuple(''.join([c for c in ph if not c.isdigit()])
+                             for ph in phonemes_str.split())
+            if not word[0].isalpha() and word not in PUNCTUATION_EXCEPTIONS:
                 print('Skipping word "{}"'.format(word), file=sys.stderr)
                 skipped.append((word, phonemes))
             elif word[-1] == ')' and word[-3] == '(':
