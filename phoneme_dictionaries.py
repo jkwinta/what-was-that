@@ -44,7 +44,8 @@ def build_word_to_phonemes_dict():
                 skipped.append((word, phonemes))
             elif word[-1] == ')' and word[-3] == '(':
                 # Check -1 first in case length is < 3
-                WORD_TO_PHONEMES_DICT[word[:-3]].append(phonemes)
+                if phonemes not in WORD_TO_PHONEMES_DICT[word[:-3]]:
+                    WORD_TO_PHONEMES_DICT[word[:-3]].append(phonemes)
             else:
                 WORD_TO_PHONEMES_DICT[word] = [phonemes]
     return
