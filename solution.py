@@ -6,6 +6,35 @@ class Instance:
     def __init__(self, instance):
         self.input = instance.strip()
         self.words = None
+
+    def get_words(self):
+        if self.words is None:
+            self.words = self.input.split()
+        return self.words
+
+    def get_phonemes(self):
+        phonemes = []
+        d = phoneme_dictionaries.get_word_to_phonemes_dict()
+        for word in self.get_words():
+            word_upper = word.upper()
+            if word_upper in d:
+                if not phonemes or not isinstance(phonemes[-1], list):
+                    phonemes.append(d[word_upper])
+                else:
+                    last_phonemes = phonemes[-1]
+                    phonemes[-1] = []
+                    for first in last_phonemes:
+                        for second in d[word_upper]:
+                            phonemes[-1].append(first + second)
+            else:
+                phonemes.append(word)
+        return phonemes
+
+
+class SubInstance:
+    def __init__(self, instance):
+        self.input = instance.strip()
+        self.words = None
         self.phonemes = None
         self.n_phonemes = 0
         # self.next = None
@@ -22,9 +51,9 @@ class Instance:
             d = phoneme_dictionaries.get_word_to_phonemes_dict()
             words = self.get_words()
             for word in words:
-                word_lower = word.lower()
-                if word_lower in d:
-                    phonemes_list.extend(d[word_lower])
+                word_upper = word.upper()
+                if word_upper in d:
+                    phonemes_list.extend(d[word_upper])
                 else:
                     print('Word "{}" not in dictionary, result will be nonsense!'.format(word), file=stderr)
             self.phonemes = tuple(phonemes_list)
@@ -62,6 +91,6 @@ def get_solution(string_of_words):
 if __name__ == '__main__':
     a = 'hello'
     ai = Instance(a)
-    ar = ai.get_solution()
-    print(ar)
+    # ar = ai.get_solution()
+    # print(ar)
     print(end='')
