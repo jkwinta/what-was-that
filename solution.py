@@ -8,6 +8,8 @@ class Instance:
         self.words = None
         self.phonemes = None
         self.composite_dict = {}
+        self.piecewise_solutions = None
+        self.solutions = None
 
     def get_words(self):
         if self.words is None:
@@ -52,73 +54,35 @@ class Instance:
             self.composite_dict[phonemes] = solution
         return self.composite_dict[phonemes]
 
+    def get_piecewise_solutions(self):
+        if self.piecewise_solutions is None:
+            piece_sol_list = []
+            for part in self.get_phonemes():
+                if isinstance(part, list):
+                    piece_sol_list.append([])
+                    for phonemes in part:
+                        piece_sol_list[-1].extend(self.get_solution(phonemes))
+                else:  # str
+                    piece_sol_list.append([part])
+            self.piecewise_solutions = piece_sol_list
+        return self.piecewise_solutions
+
     def get_all_solutions(self):
-        partial_sol_list = []
-        for part in self.get_phonemes():
-            if isinstance(part, list):
-                partial_sol_list.append([])
-                for phonemes in part:
-                    partial_sol_list[-1].extend(self.get_solution(phonemes))
-            else:  # str
-                partial_sol_list.append([part])
-        return partial_sol_list
-
-
-class SubInstance:
-    def __init__(self, instance):
-        self.input = instance.strip()
-        self.words = None
-        self.phonemes = None
-        self.n_phonemes = 0
-        # self.next = None
-        self.array = {}
-
-    def get_words(self):
-        if self.words is None:
-            self.words = self.input.split()
-        return self.words
-
-    def get_phonemes(self):
-        if self.phonemes is None:
-            phonemes_list = []
-            d = phoneme_dictionaries.get_word_to_phonemes_dict()
-            words = self.get_words()
-            for word in words:
-                word_upper = word.upper()
-                if word_upper in d:
-                    phonemes_list.extend(d[word_upper])
-                else:
-                    print('Word "{}" not in dictionary, result will be nonsense!'.format(word), file=stderr)
-            self.phonemes = tuple(phonemes_list)
-            self.n_phonemes = len(self.phonemes)
-        return self.phonemes
-
-    def get_result_by_range(self, start, stop):
-        k = (start, stop)
-        if self.array.get(k, None) is None:
-            result = []
-            result.extend(
-                phoneme_dictionaries.get_phonemes_to_word_dict().get(self.get_phonemes()[start:stop], [])
-            )
-            for k in range(start + 1, stop):
-                first = self.get_result_by_range(start, k)
-                second = self.get_result_by_range(k, stop)
+        if self.solutions is None:
+            partial_solutions = self.get_piecewise_solutions().copy()  # copy
+            while len(partial_solutions) > 1:
+                first, second = partial_solutions[-2:]
+                if isinstance(first, str):
+                    first = [first]
+                if isinstance(second, str):
+                    second = [second]
+                result = []
                 for f in first:
                     for s in second:
-                        c = f + ' ' + s
-                        if c not in result:
-                            result.append(c)
-            self.array[k] = result
-        return self.array[k]
-
-    def get_solution(self):
-        self.get_phonemes()
-        return self.get_result_by_range(0, self.n_phonemes)
-
-
-def get_solution(string_of_words):
-    i = Instance(string_of_words)
-    return i.get_solution()
+                        result.append(f + ' ' + s)
+                partial_solutions = partial_solutions[:-2] + [result]
+            self.solutions = partial_solutions[0]
+        return self.solutions
 
 
 if __name__ == '__main__':
